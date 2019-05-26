@@ -1,26 +1,61 @@
 <template>
-  <div class="mystyle">
+  <div class="main">
     {{ message }}
-    <ul>
-      <li v-for="(item, index) in items" :key="`items-${index}`">{{`${message}-${index}` }}</li>
+
+    <ul class="flexbox" v-for="(item, index) in items" :key="`items-${index}`">
+      <li v-for="(essai, cle) in essais" :key="`${cle}`" :class="[`${cle === adam ? 'essai': ''}`]">
+        {{ `${cle}-${adam}` }}
+      </li> 
+      <li>Boite troisieme</li>
     </ul>
+
   </div>
 </template>
 
-<script>
+<script lang="ts" >
+
+
 export default {
   data() {
     return {
       items: new Array(25),
+      essais: Number(Math.floor((Math.random() * 10) + 1)),
+      adam: Number(Math.floor((Math.random() * 10) + 1)),
       message: "Composant 4",
     };
   },
 };
 </script>
 <style scoped>
-.mystyle {
+
+.main {
   height: 100%;
   background-color: rgb(228, 173, 194);
+  list-style: none;
+  overflow-y: auto;
 }
+
+.flexbox {
+  display: flex;
+  width: 80%;
+  padding: 16px;
+	margin: 60px auto 0;
+	border: 6px solid #36E7EB;
+	border-radius: 10px;
+}
+li {
+	font-size: 12px;
+  width: 100px;
+  height: 100px;
+	padding: 10px;
+  margin-right: 14px;
+	border-radius: 10px;
+  background-color: #FEDD57;
+  /* flex-grow: 0; */
+}
+.essai {
+  flex-grow: 1;
+}
+
 </style>
 
