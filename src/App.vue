@@ -1,29 +1,32 @@
+
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
-  </div>
+  <panel-splitter layout="vertical" hideresize startValue="66" minValue="25" maxValue="75">
+      <composant1 slot="prev-panel" />
+      <composant2 slot="next-panel" />
+  </panel-splitter>
 </template>
 
-<script lang="ts">
-import Vue from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+<script>
+import composant1 from "./components/comp1/comp1.vue";
+import composant2 from "./components/comp2/comp2.vue";
 
-export default Vue.extend({
-  name: 'app',
+import panelSplitter from "./components/splitter/panel-splitter.vue";
+
+export default {
   components: {
-    HelloWorld,
+    composant1,
+    composant2,
+    panelSplitter,
   },
-});
+};
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+html,
+body {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
 }
 </style>

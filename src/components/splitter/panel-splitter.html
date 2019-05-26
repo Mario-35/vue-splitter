@@ -1,0 +1,21 @@
+<div :class="classnames" 
+      ref="root" 
+      :style="{ cursor, userSelect }"      
+      @mouseup="onUp"
+      @mousemove="onMouseMove" 
+      @mouseleave="onUp">
+  <!-- Attenion le mounted du fichier ts doit ëtre modifier -->
+  <div class="prev-panel" :style="{'--prev-panel-background-hover': (localPrevPanelPercent === minWidthValue) ? 'rgb(247, 112, 112)' : 'rgb(9, 189, 105)'}" ref="prevPanel">
+    <div v-if="isResizing" :class="`${resizingClass} prev-${resizingClass}`" :value="`${localPrevPanelPercent}%`"></div>
+    <div v-show="isResizing && hideresize" :class="`prev-${hideresizeClass}`"></div>
+    <slot name="prev-panel"></slot>
+  </div>
+  
+  <div class="panel-resizer" @mousedown="onDown" @dblclick="dblclick" :class="[resizerClass, isResizing ? 'is-resizing' : '']" ref="resizer"></div>
+  
+  <div class="next-panel" :style="{'--next-panel-background-hover': (localNextPanelPercent === minWidthValue) ? 'rgb(247, 112, 112)' : 'rgb(9, 189, 105)'}" ref="nextPanel">
+    <div v-if="isResizing" :class="`${resizingClass} next-${resizingClass}`" :value="`${localNextPanelPercent}%`"></div>
+    <div v-show="isResizing && hideresize" :class="`next-${hideresizeClass}`"></div>
+    <slot name="next-panel"></slot>
+  </div>
+</div>
