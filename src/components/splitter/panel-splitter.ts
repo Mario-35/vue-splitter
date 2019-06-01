@@ -54,14 +54,6 @@ export default Vue.extend({
     };
   },
   methods: {
-    debug(message: string, other?: any | null) {
-      // tslint:disable-next-line: no-console
-      console.log(message);
-      if (other) {
-        // tslint:disable-next-line: no-console
-        console.log(other);
-      }
-    },
     isGoodClass(event: MouseEvent, Compare: string): boolean {
       // tslint:disable-next-line: max-line-length
       if ((event.target instanceof HTMLElement) && event.target.className && event.target.className === Compare) {
@@ -70,7 +62,6 @@ export default Vue.extend({
       return false;
     },
     onDown(event: MouseEvent) {
-      this.debug("onDown");
       if (this.hasparent) { this.$emit("mouseleave"); }
       if (this.isResizing) { this.resizerOnUp(event); }
       this.resizePosition = this.horizontal ? event.pageY : event.pageX;
@@ -82,7 +73,6 @@ export default Vue.extend({
       }
     },
     resizerOnUp(event: MouseEvent) {
-      this.debug("resizerOnUp");
       if (this.isResizing) {
         this.isResizing = false;
         // tslint:disable-next-line: max-line-length
@@ -98,7 +88,6 @@ export default Vue.extend({
       return false;
     },
     setTargets(): boolean {
-      this.debug("setTargets");
       if (this.isGoodSetTarget(this.$el.children[0], "resizer")) {
         this.localHideResizer = this.$el.children[0] as HTMLElement;
         if (this.isGoodSetTarget(this.$el.children[1], "panel-splitter")) {
@@ -118,7 +107,6 @@ export default Vue.extend({
       return false;
     },
     ChangeSize(percent: number) {
-      this.debug("ChangeSize", percent);
       switch (this.myMode) {
         case "minimize":
           percent = 99;
@@ -147,7 +135,6 @@ export default Vue.extend({
       }
     },
     rootMouseMove(e: any) {
-      this.debug("rootMouseMove", e);
       e.preventDefault();
       if (e.buttons === 1 && this.isResizing ) {
         if (e.pageY > 0  && e.pageX > 0) {
@@ -160,7 +147,6 @@ export default Vue.extend({
       }
     },
     actionClick(event: any) {
-      this.debug("rootMouseMove", event);
       if (!this.isResizing) {
         this.isResizing = false;
         if (this.myMode === "resize") {
