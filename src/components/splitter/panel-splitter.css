@@ -1,20 +1,20 @@
-.panel-splitter { /* Flex Container */
-  --background: grey;
-  --splitter-width: 4px;
+.root {
+  --splitter-width: 5px;
+  --splitter-action: 5px;
   --splitter-border: rgb(158, 160, 160);
   --splitter-background: rgb(202, 204, 204);
-  --splitter-background-hover: rgb(9, 189, 189);
+  --splitter-hover: rgb(9, 189, 189);
+  --splitter-limit: rgb(247, 112, 112);
   --splitter-line-hover: black;
   --minimize-color: red;
-  --active-color: green;
-  --background-text-value: rgb(240, 226, 178);
-  --hideresize-background: grey;
-  --zed-index-1: 124532;
-  --zed-index: 124533;
+  --active-color: green;  
+  
+  width: 100%;
+  height: 100%;  
+}
 
-  --prev-panel-background-hover: rgb(247, 112, 112);
-  --next-panel-background-hover: rgb(9, 189, 105);
 
+.panel-splitter { /* Flex Container */
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -30,263 +30,194 @@
 .prev-panel, .next-panel {
   height: 100%;
   width: 100%;
-  background-color: var(--background);
 }
 
-.deactivate {/* descativation contenu de l'item flexbox */
+.deactivate {/* descativation du resizer en mode desactivate*/
   display: none;
 }
 
-.panel-splitter > div { /* contenu de l'item flexbox */
+.panel-splitter > div { /* resizer */
   position: relative;
+}
+
+.panel-resizer-layout-vertical > a:hover,
+.panel-resizer-layout-horizontal > a:hover {
+  transform: scale(3);
 }
 
 /****************************************************                 layout horizontal               ****************************************************/
 
-/*****************************************************/
-/*                Splitter horizontal               */
-/***************************************************/
-
-.panel-splitter.layout-horizontal { 
-	-webkit-box-orient: vertical;
+.panel-splitter .layout-horizontal { 
+  -webkit-box-orient: vertical;
 	-webkit-box-direction: normal;
 	-ms-flex-direction: column;
 	flex-direction: column;
 }
 
-.layout-horizontal > .panel-resizer { /* plitter resizer horizontal*/
+/*****************************************************/
+/*                Splitter horizontal               */
+/***************************************************/
+
+.panel-resizer-layout-horizontal {
   flex: 0 0 var(--splitter-width);
-  cursor: row-resize;
   background-color: var(--splitter-background);
   border-top: 1px solid  var(--splitter-border);
   border-bottom: 1px solid  var(--splitter-border);
 }
 
-.layout-horizontal > .panel-resizer:before {
+.resizer-layout-horizontal { 
   position: absolute;
-  display: block;
-  content: "";
-  height: 100%;
-  width: 50px;
-  left: 50%;
-  margin-left: -25px;
-  background-color: var(--splitter-border);
-}
-
-.layout-horizontal > .panel-resizer:hover {
+  z-index: 10;
   width: 100%;
   height: var(--splitter-width);
   border-top: 1px solid var(--splitter-line-hover);
   border-bottom: 1px solid  var(--splitter-line-hover);
-  background-color:  var(--splitter-background-hover);
 }
 
-.layout-horizontal > .minimize { /* plitter resizer horizontal*/
-  display: block;
-  /* top: calc(100% - 10px); */
-}
-
-.layout-horizontal > .minimize:before {
-  background-color: var(--minimize-color);
-}
-
-.layout-horizontal > .active:before {
-  background-color: var(--active-color);
-}
-
-/*****************************************************/
-/*             panel-resizing  horizontal           */
-/***************************************************/
-
-.panel-resizing-showresize-horizontal,
-.panel-resizing-hideresize-horizontal {
+.panel-resizer-layout-horizontal:before {
+  z-index: 12;
   position: absolute;
   display: block;
   content: "";
   height: 100%;
-  width: 3px;
+  width: calc(var(--splitter-action) * 4);
+  left: 50%;
+  margin-left: calc(var(--splitter-action) * -2);
+  background-color: var(--splitter-border);
+}
+
+.panel-resizer-layout-horizontal > a {
+  z-index: 13;
+  position: absolute;
+  content: "";
+  cursor: pointer;
   left: 50%;
 }
 
-.panel-resizing-showresize-horizontal:after ,
-.panel-resizing-hideresize-horizontal:after {
-  position: absolute;
-  content: attr(value);
-  z-index: var(--zed-index);
-  left: -22px;
-  top: calc(50% - 20px);
-  width: 44px;
-  height: 20px;
-  border-radius: 14px;
-  text-align: center;
+
+.panel-resizer-layout-horizontal-resize {
+  z-index: 14;
+  margin-left: calc(var(--splitter-action) * -0.5); 
+  height: var(--splitter-action);
+  width: var(--splitter-action);
+  border-radius: 50%;
+  background-color: black;
 }
 
-.prev-panel-resizing-showresize-horizontal,
-.prev-panel-resizing-hideresize-horizontal {
-  background-color: var(--prev-panel-background-hover);
+.panel-resizer-layout-horizontal-minimize {
+  z-index: 14;
+  border-left: var(--splitter-action) solid transparent;
+  border-right: var(--splitter-action) solid transparent;
+  border-bottom: var(--splitter-action) solid black;
+  margin-left: calc(var(--splitter-action) * -1); 
 }
 
-.prev-panel-resizing-showresize-horizontal:after,
-.prev-panel-resizing-hideresize-horizontal:after {
-  border: 2px solid var(--prev-panel-background-hover);
-  background-color: var(--background-text-value);
+.panel-resizer-layout-horizontal-active {
+  z-index: 14;
+  border-left: var(--splitter-action) solid transparent;
+  border-right: var(--splitter-action) solid transparent;
+  border-top: var(--splitter-action) solid black;
+  margin-left: calc(var(--splitter-action) * -1); 
 }
 
-.prev-panel-hideresize-horizontal {
-  height: 100%;
-  width: calc(100% - (2 * var(--splitter-width)));
-  background:  var(--hideresize-background);
+.resizer-layout-horizontal:hover,
+.panel-resizer-layout-horizontal:hover {
+  width: 100%;
+  height: var(--splitter-width);
+  border-top: 1px solid var(--splitter-line-hover);
+  border-bottom: 1px solid  var(--splitter-line-hover);
+  background-color:  var(--splitter-hover);
 }
 
-.next-panel-hideresize-horizontal {
-  height: calc(100% - (5px + var(--splitter-width)));
-  width: calc(100% - (2 * var(--splitter-width)));
-  background:  var(--hideresize-background);
-}
-
-.prev-panel-hideresize-horizontal {
-  border-left: 3px dotted var(--prev-panel-background-hover);
-  border-top: 3px dotted var(--prev-panel-background-hover);
-  border-right: 3px dotted var(--prev-panel-background-hover);
-}
-
-.next-panel-hideresize-horizontal {
-  border-right: 3px dotted var(--next-panel-background-hover);
-  border-left: 3px dotted var(--next-panel-background-hover);
-  border-bottom: 3px dotted var(--next-panel-background-hover);
-}
-
-.next-panel-resizing-showresize-horizontal,
-.next-panel-resizing-hideresize-horizontal {
-  background-color: var(--next-panel-background-hover);
-}
-
-.next-panel-resizing-showresize-horizontal:after,
-.next-panel-resizing-hideresize-horizontal:after {
-  border: 2px solid var(--next-panel-background-hover);
-  background-color: var(--background-text-value);
+.panel-resizer-layout-horizontal:hover {
+  cursor: ns-resize;
 }
 
 /****************************************************                 layout vertical               ****************************************************/
+
+.panel-splitter .layout-vertical { 
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: row;
+  flex-direction: row;
+}
 
 /*****************************************************/
 /*                 Splitter vertical                */
 /***************************************************/
 
-.panel-splitter.layout-vertical { 
-	-webkit-box-orient: horizontal;
-	-webkit-box-direction: normal;
-	-ms-flex-direction: row;
-  flex-direction: row;
-}
-
-.layout-vertical > .panel-resizer { /* plitter resizer vertical*/
+.panel-resizer-layout-vertical { /* plitter resizer vertical*/
   flex: 0 0 var(--splitter-width);
-  cursor: col-resize;
   border-left: 1px solid  var(--splitter-border);
   border-right: 1px solid  var(--splitter-border);
   background-color: var(--splitter-background);
 }
 
-.layout-vertical > .panel-resizer:before {
+.resizer-layout-vertical { 
   position: absolute;
+  display: block;
+  z-index: 10;
+  height: 100%;
+  width: var(--splitter-width);
+  border-left: 1px solid var(--splitter-line-hover);
+  border-right: 1px solid  var(--splitter-line-hover);
+}
+
+.panel-resizer-layout-vertical:before {
+  position: absolute;
+  z-index: 12;
   display: block;
   content: "";
   width: 100%;
-  height: 50px;
+  height: calc(var(--splitter-action) * 4);
   top: 50%;
-  margin-top: -25px;
+  margin-top: calc(var(--splitter-action) * -2);
   background-color:var(--splitter-border);
 }
 
-.layout-vertical > .panel-resizer:hover {
+.panel-resizer-layout-vertical > a {
+  z-index: 13;
+  position: absolute;
+  content: "";
+  cursor: pointer;
+  top: 50%;
+}
+
+.panel-resizer-layout-vertical-resize {
+  margin-top: calc(var(--splitter-action) * -0.5); 
+  z-index: 14;
+  height: var(--splitter-action);
+  width: var(--splitter-action);
+  border-radius: 50%;
+  background-color: black;
+}
+
+.panel-resizer-layout-vertical-minimize {
+  z-index: 14;
+  border-top: var(--splitter-action) solid transparent;
+  border-bottom: var(--splitter-action) solid transparent;
+  border-right: var(--splitter-action) solid black;
+  margin-top: calc(var(--splitter-action) * -1); 
+}
+
+.panel-resizer-layout-vertical-active {
+  z-index: 14;
+  border-top: var(--splitter-action) solid transparent;
+  border-bottom: var(--splitter-action) solid transparent;
+  border-left: var(--splitter-action) solid black;
+  margin-top: calc(var(--splitter-action) * -1); 
+}
+
+.resizer-layout-vertical:hover,
+.panel-resizer-layout-vertical:hover {
   width: var(--splitter-width);
   height: 100%;
   border-left: 1px solid var(--splitter-line-hover);
   border-right: 1px solid  var(--splitter-line-hover);
-  background-color:  var(--splitter-background-hover);
+  background-color:  var(--splitter-hover);
 }
 
-.layout-vertical > .minimize { /* plitter resizer horizontal*/
-  width: 7px;
+.panel-resizer-layout-vertical:hover {
+  cursor: ew-resize;
 }
-
-.layout-vertical > .minimize:before {
-  background-color: rgb(212, 19, 19);
-}
-
-.layout-vertical > .minimize:hover {
-  width: 7px;
-}
-
-/*****************************************************/
-/*               panel-resizing  vertical           */
-/***************************************************/
-
-.panel-resizing-showresize-vertical,
-.panel-resizing-hideresize-vertical {
-  position: absolute;
-  display: block;
-  z-index: var(--zed-index);
-  content: "";
-  width: 100%;
-  height: 3px;
-  top: calc(50%);
-}
-
-.panel-resizing-showresize-vertical:after ,
-.panel-resizing-hideresize-vertical:after {
-  position: absolute;
-  content: attr(value);
-  z-index: var(--zed-index);
-  top: -10px;
-  left: calc(50% - 22px);
-  width: 44px;
-  height: 20px;
-  border-radius: 15px;
-  text-align: center;  
-}
-
-.prev-panel-resizing-showresize-vertical,
-.prev-panel-resizing-hideresize-vertical {
-  background-color: var(--prev-panel-background-hover);
-}
-
-.prev-panel-resizing-showresize-vertical:after,
-.prev-panel-resizing-hideresize-vertical:after {
-  border: 2px solid var(--prev-panel-background-hover);
-  background-color: var(--background-text-value);
-}
-
-.prev-panel-hideresize-vertical,
-.next-panel-hideresize-vertical {
-  height: calc(100% - 6px);
-  width: 100%;
-  background:  var(--hideresize-background);
-}
-
-.prev-panel-hideresize-vertical {
-  border-left: 3px dotted var(--prev-panel-background-hover);
-  border-top: 3px dotted var(--prev-panel-background-hover);
-  border-bottom: 3px dotted var(--prev-panel-background-hover);
-}
-
-.next-panel-hideresize-vertical {
-  border-right: 3px dotted var(--next-panel-background-hover);
-  border-top: 3px dotted var(--next-panel-background-hover);
-  border-bottom: 3px dotted var(--next-panel-background-hover);
-}
-
-.next-panel-resizing-showresize-vertical,
-.next-panel-resizing-hideresize-vertical {
-  background-color: var(--next-panel-background-hover);
-}
-
-.next-panel-resizing-showresize-vertical:after,
-.next-panel-resizing-hideresize-vertical:after {
-  border: 2px solid var(--next-panel-background-hover);
-  background-color: var(--background-text-value);
-}
-
-
 

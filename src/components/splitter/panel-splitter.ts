@@ -3,96 +3,122 @@ import { Prop } from "vue/types/options";
 
 interface IState {
   isResizing: boolean;
+  horizontal: boolean;
   localPrevPanel: HTMLElement | null;
   localNextPanel: HTMLElement | null;
+  localHideResizer: HTMLElement | null;
   localResizer: HTMLElement | null;
-  localPrevPanelPercent: number;
-  localNextPanelPercent: number;
   maxWidthValue: number;
   minWidthValue: number;
   myMode: string;
   savePercent: number;
-  size: number;
+  actualPercent: number;
+  resizePosition: number;
 }
 
 export default Vue.extend({
   name: "panel-splitter",
   computed: {
-    hideresizeClass(): string {
-      return `panel-${this.isResizing && this.hideresize ? "hideresize" : ""}-${this.layout}`;
-     },
-    resizingClass(): string {
-     return `panel-resizing-${this.hideresize ? "hideresize" : "showresize"}-${this.layout}`;
+    myEventUp(): string {
+      return this.isResizing ? "mouseup" : "";
     },
-    resizerClass(): string {
-      return `panel-splitter layout-${this.layout} ${this.myMode}`;
+    myEventMove(): string {
+      return this.isResizing ? "mousemove" : "";
     },
-    classnames(): string {
-      return `panel-splitter layout-${this.layout}`;
+    myEventLeave(): string {
+      return this.isResizing ? "mouseleave" : "";
     },
-    cursor(): string {
-      return this.isResizing
-        ? this.horizontal ? "ew-resize" : "ns-resize"
-        : "";
-    },
-    userSelect(): string {
-      return this.isResizing ? "none" : "";
-    },
-    horizontal(): boolean {
-      return this.layout === "horizontal";
+    resizerStyles(): object {
+      const limit: boolean = ((this.actualPercent < this.minWidthValue) || (this.actualPercent > this.maxWidthValue));
+      return {
+        // tslint:disable-next-line: max-line-length
+        "transform" : this.horizontal ? `translate(0, ${this.resizePosition}px)` : `translate(${this.resizePosition}px)`,
+        "background-color": limit ? "var(--splitter-limit)" : "var(--splitter-hover)",
+      };
     },
   },
   data(): IState {
     return {
-      localPrevPanelPercent: 0,
-      localNextPanelPercent: 0,
       isResizing: false,
+      horizontal: false,
       localPrevPanel: null,
       localNextPanel: null,
       localResizer: null,
+      localHideResizer: null,
       maxWidthValue: 0,
       minWidthValue: 0,
       myMode: "",
       savePercent: 0,
-      size: 0,
+      actualPercent: 0,
+      resizePosition: 0,
     };
   },
   methods: {
-    isSplitter(event: MouseEvent): boolean {
-      this.localResizer = null;
+    debug(message: string, other?: any | null) {
+      // tslint:disable-next-line: no-console
+      console.log(message);
+      if (other) {
+        // tslint:disable-next-line: no-console
+        console.log(other);
+      }
+    },
+    isGoodClass(event: MouseEvent, Compare: string): boolean {
       // tslint:disable-next-line: max-line-length
-      if ((event.target instanceof HTMLElement) && event.target.className && event.target.className.match("panel-resizer")) {
+      if ((event.target instanceof HTMLElement) && event.target.className && event.target.className === Compare) {
         return true;
       }
       return false;
     },
-
     onDown(event: MouseEvent) {
-      this.isResizing = (event.buttons === 1 && this.myMode !== "minimize" && this.isSplitter(event));
+      this.debug("onDown");
+      if (this.hasparent) { this.$emit("mouseleave"); }
+      if (this.isResizing) { this.resizerOnUp(event); }
+      this.resizePosition = this.horizontal ? event.pageY : event.pageX;
+      // tslint:disable-next-line: max-line-length
+      if ((event.target instanceof HTMLElement) && event.target.className && event.target.className.includes("resizer-layout")) {
+        this.isResizing = (event.buttons === 1 && this.myMode !== "minimize");
+      } else {
+        this.isResizing = false;
+      }
     },
-    onUp() {
-      this.isResizing = false;
-    },
-
-    setTargets(event: MouseEvent): boolean {
+    resizerOnUp(event: MouseEvent) {
+      this.debug("resizerOnUp");
+      if (this.isResizing) {
+        this.isResizing = false;
         // tslint:disable-next-line: max-line-length
-        if (this.isSplitter(event)) {
-          this.localResizer = event.target as HTMLElement;
-          this.localPrevPanel = this.localResizer.previousElementSibling as HTMLElement;
-          this.localNextPanel = this.localResizer.nextElementSibling as HTMLElement;
-          if (!(this.localPrevPanel instanceof HTMLElement && this.localNextPanel instanceof HTMLElement)) {
-            this.localPrevPanel = null;
-            this.localNextPanel = null;
-            return false;
-          }
-          return true;
+        if (this.isGoodClass(event, "resizer-layout-horizontal") || this.isGoodClass(event, "resizer-layout-vertical")) {
+          this.ChangeSize(this.actualPercent);
         }
-        return false;
+      }
     },
-
+    isGoodSetTarget(element: Element, nameClass: string): boolean {
+      if ((element instanceof HTMLElement) && element.className && element.className.includes(nameClass)) {
+        return true;
+      }
+      return false;
+    },
+    setTargets(): boolean {
+      this.debug("setTargets");
+      if (this.isGoodSetTarget(this.$el.children[0], "resizer")) {
+        this.localHideResizer = this.$el.children[0] as HTMLElement;
+        if (this.isGoodSetTarget(this.$el.children[1], "panel-splitter")) {
+          if (this.isGoodSetTarget(this.$el.children[1].children[0], "prev-panel")) {
+            if (this.isGoodSetTarget(this.$el.children[1].children[1], "panel-resizer")) {
+              if (this.isGoodSetTarget(this.$el.children[1].children[2], "next-panel")) {
+                this.localPrevPanel = this.$el.children[1].children[0] as HTMLElement;
+                this.localResizer = this.$el.children[1].children[1] as HTMLElement;
+                this.localNextPanel = this.$el.children[1].children[2] as HTMLElement;
+                this.ChangeSize(Number(Number(this.startValue)));
+                return true;
+              }
+            }
+          }
+        }
+      }
+      return false;
+    },
     ChangeSize(percent: number) {
-// tslint:disable-next-line: no-console
-      console.log(`${this.myMode} : ${percent} => ${this.minWidthValue}`);
+      this.debug("ChangeSize", percent);
       switch (this.myMode) {
         case "minimize":
           percent = 99;
@@ -106,37 +132,37 @@ export default Vue.extend({
             percent = 100;
             break;
       }
-
-      this.localPrevPanelPercent = percent;
-      this.localNextPanelPercent = 100 - percent;
-
-      if (this.localPrevPanel != null &&  this.localNextPanel != null) {
+      // tslint:disable-next-line: max-line-length
+      if (this.localPrevPanel != null &&  this.localNextPanel != null && this.localHideResizer != null && this.localResizer != null) {
         if (this.horizontal) {
-          this.localPrevPanel.style.height = `${this.localPrevPanelPercent}%`;
-          this.localNextPanel.style.height = `${this.localNextPanelPercent}%`;
+          this.localPrevPanel.style.height = `${percent}%`;
+          this.localNextPanel.style.height = `${100 - percent}%`;
+          this.localHideResizer.style.top = this.localResizer.style.top;
         } else {
-          this.localPrevPanel.style.width = `${this.localPrevPanelPercent}%`;
-          this.localNextPanel.style.width = `${this.localNextPanelPercent}%`;
+          this.localPrevPanel.style.width = `${percent}%`;
+          this.localNextPanel.style.width = `${100 - percent}%`;
+          this.localHideResizer.style.left = this.localResizer.style.left;
         }
-        // tslint:disable-next-line: max-line-length
-        // this.localNextPanel.style.display = (this.mode === "minimize") || (this.mode === "deactivate") ? "none" : "block";
+        this.actualPercent = percent;
       }
     },
-
-    onMouseMove(e: any) {
+    rootMouseMove(e: any) {
+      this.debug("rootMouseMove", e);
       e.preventDefault();
       if (e.buttons === 1 && this.isResizing ) {
         if (e.pageY > 0  && e.pageX > 0) {
           // tslint:disable-next-line: max-line-length
-          const newValue: number = this.horizontal ? Math.floor((100 * e.pageY) / e.currentTarget.offsetHeight) : Math.floor((100 * e.pageX) / e.currentTarget.offsetWidth);
-          this.ChangeSize(newValue);
-        } else {
-          this.onUp();
+          this.actualPercent = this.horizontal ? Math.floor((100 * e.pageY) / e.currentTarget.offsetHeight) : Math.floor((100 * e.pageX) / e.currentTarget.offsetWidth);
+          this.resizePosition = this.horizontal ? e.pageY : e.pageX;
         }
+      } else if (this.isResizing) {
+        this.resizerOnUp(e);
       }
     },
-    dblclick(event: any) {
-      if (this.setTargets(event)) {
+    actionClick(event: any) {
+      this.debug("rootMouseMove", event);
+      if (!this.isResizing) {
+        this.isResizing = false;
         if (this.myMode === "resize") {
           this.ChangeSize(Number(this.startValue));
         } else {
@@ -145,7 +171,7 @@ export default Vue.extend({
               this.myMode = "active";
               this.ChangeSize(this.savePercent);
             } else {
-              this.savePercent = this.localPrevPanelPercent;
+              this.savePercent = this.actualPercent;
               this.myMode = "minimize";
               this.ChangeSize(this.savePercent);
             }
@@ -153,32 +179,22 @@ export default Vue.extend({
         }
       }
     },
-
-
   },
   mounted() {
     this.myMode = this.mode;
-    this.size = Number(this.startValue);
+    this.isResizing = false;
+    this.horizontal = (this.layout === "horizontal");
     this.minWidthValue = (this.minValue === "") ? Number(this.startValue) : Number(this.minValue);
     this.maxWidthValue = (this.maxValue === "") ? 100 : Number(this.maxValue);
-    for (let i = 1; i < this.$el.children.length; i++) {
-      // tslint:disable: max-line-length
-      if ((this.$el.children[i] instanceof HTMLElement) && this.$el.children[i].className && this.$el.children[i].className.match("panel-resizer")) {
-        if ((this.$el.children[i - 1] instanceof HTMLElement) && this.$el.children[i - 1].className && this.$el.children[i - 1].className.match("prev-panel")) {
-          if ((this.$el.children[i + 1] instanceof HTMLElement) && this.$el.children[i + 1].className && this.$el.children[i + 1].className.match("next-panel")) {
-            this.localPrevPanel = this.$el.children[i - 1] as HTMLElement;
-            this.localResizer = this.$el.children[i] as HTMLElement;
-            this.localNextPanel = this.$el.children[i + 1] as HTMLElement;
-            this.ChangeSize(Number(this.size));
-          }
-        }
-      }
-      // tslint:enable: max-line-length
-    }
-    this.isResizing = false;
+    this.setTargets();
   },
   props: {
     hideresize: {
+      default: false,
+      required: false,
+      type: Boolean,
+    },
+    hasparent: {
       default: false,
       required: false,
       type: Boolean,

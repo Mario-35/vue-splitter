@@ -1,14 +1,6 @@
 <template>
   <div class="main">
     {{ message }}
-
-    <ul class="flexbox" v-for="(item, index) in items" :key="`items-${index}`">
-      <li v-for="(essai, cle) in essais" :key="`${cle}`" :class="[`${cle === adam ? 'essai': ''}`]">
-        {{ `${cle}-${adam}` }}
-      </li> 
-      <li>Boite troisieme</li>
-    </ul>
-
   </div>
 </template>
 
@@ -54,7 +46,7 @@ li {
   /* flex-grow: 0; */
 }
 .essai {
-  flex-grow: 1;
+  flex: 1;
 }
 
 </style>
