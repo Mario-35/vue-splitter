@@ -6,8 +6,6 @@
   --splitter-hover: rgb(9, 189, 189);
   --splitter-limit: rgb(247, 112, 112);
   --splitter-line-hover: black;
-  --minimize-color: red;
-  --active-color: green;  
   
   width: 100%;
   height: 100%;  
@@ -42,7 +40,7 @@
 
 .panel-resizer-layout-vertical > a:hover,
 .panel-resizer-layout-horizontal > a:hover {
-  transform: scale(3);
+  transform: scale(2.5);
 }
 
 /****************************************************                 layout horizontal               ****************************************************/
@@ -83,7 +81,9 @@
   width: calc(var(--splitter-action) * 4);
   left: 50%;
   margin-left: calc(var(--splitter-action) * -2);
-  background-color: var(--splitter-border);
+  background-color: var(--splitter-border);  
+  border-left: 1px solid var(--splitter-line-hover); 
+  border-right: 1px solid var(--splitter-line-hover);
 }
 
 .panel-resizer-layout-horizontal > a {
@@ -94,14 +94,13 @@
   left: 50%;
 }
 
-
 .panel-resizer-layout-horizontal-resize {
   z-index: 14;
   margin-left: calc(var(--splitter-action) * -0.5); 
   height: var(--splitter-action);
   width: var(--splitter-action);
   border-radius: 50%;
-  background-color: black;
+  background: black;
 }
 
 .panel-resizer-layout-horizontal-minimize {
@@ -172,7 +171,10 @@
   height: calc(var(--splitter-action) * 4);
   top: 50%;
   margin-top: calc(var(--splitter-action) * -2);
-  background-color:var(--splitter-border);
+  background-color: var(--splitter-border);
+  background-color: var(--splitter-border);  
+  border-top: 1px solid var(--splitter-line-hover); 
+  border-bottom: 1px solid var(--splitter-line-hover);
 }
 
 .panel-resizer-layout-vertical > a {
@@ -189,7 +191,7 @@
   height: var(--splitter-action);
   width: var(--splitter-action);
   border-radius: 50%;
-  background-color: black;
+  background: black;
 }
 
 .panel-resizer-layout-vertical-minimize {

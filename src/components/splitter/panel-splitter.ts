@@ -61,26 +61,6 @@ export default Vue.extend({
       }
       return false;
     },
-    onDown(event: MouseEvent) {
-      if (this.hasparent) { this.$emit("mouseleave"); }
-      if (this.isResizing) { this.resizerOnUp(event); }
-      this.resizePosition = this.horizontal ? event.pageY : event.pageX;
-      // tslint:disable-next-line: max-line-length
-      if ((event.target instanceof HTMLElement) && event.target.className && event.target.className.includes("resizer-layout")) {
-        this.isResizing = (event.buttons === 1 && this.myMode !== "minimize");
-      } else {
-        this.isResizing = false;
-      }
-    },
-    resizerOnUp(event: MouseEvent) {
-      if (this.isResizing) {
-        this.isResizing = false;
-        // tslint:disable-next-line: max-line-length
-        if (this.isGoodClass(event, "resizer-layout-horizontal") || this.isGoodClass(event, "resizer-layout-vertical")) {
-          this.ChangeSize(this.actualPercent);
-        }
-      }
-    },
     isGoodSetTarget(element: Element, nameClass: string): boolean {
       if ((element instanceof HTMLElement) && element.className && element.className.includes(nameClass)) {
         return true;
@@ -134,16 +114,37 @@ export default Vue.extend({
         this.actualPercent = percent;
       }
     },
-    rootMouseMove(e: any) {
-      e.preventDefault();
-      if (e.buttons === 1 && this.isResizing ) {
-        if (e.pageY > 0  && e.pageX > 0) {
+    onDown(event: MouseEvent) {
+      if (this.hasparent) { this.$emit("mouseleave"); }
+      if (this.isResizing) { this.resizerOnUp(event); }
+      this.resizePosition = this.horizontal ? event.pageY : event.pageX;
+      // tslint:disable-next-line: max-line-length
+      if ((event.target instanceof HTMLElement) && event.target.className && event.target.className.includes("resizer-layout")) {
+        this.isResizing = (event.buttons === 1 && this.myMode !== "minimize");
+      } else {
+        this.isResizing = false;
+      }
+    },
+    resizerOnUp(event: MouseEvent) {
+      if (this.isResizing) {
+        this.isResizing = false;
+        // tslint:disable-next-line: max-line-length
+        if (this.isGoodClass(event, "resizer-layout-horizontal") || this.isGoodClass(event, "resizer-layout-vertical")) {
+          this.ChangeSize(this.actualPercent);
+        }
+      }
+    },
+    rootMouseMove(event: MouseEvent) {
+      event.preventDefault();
+      const target: HTMLElement = event.currentTarget as HTMLElement;
+      if (event.buttons === 1 && this.isResizing ) {
+        if (event.pageY > 0  && event.pageX > 0) {
           // tslint:disable-next-line: max-line-length
-          this.actualPercent = this.horizontal ? Math.floor((100 * e.pageY) / e.currentTarget.offsetHeight) : Math.floor((100 * e.pageX) / e.currentTarget.offsetWidth);
-          this.resizePosition = this.horizontal ? e.pageY : e.pageX;
+          this.actualPercent = this.horizontal ? Math.floor((100 * event.pageY) / target.offsetHeight) : Math.floor((100 * event.pageX) / target.offsetWidth);
+          this.resizePosition = this.horizontal ? event.pageY : event.pageX;
         }
       } else if (this.isResizing) {
-        this.resizerOnUp(e);
+        this.resizerOnUp(event);
       }
     },
     actionClick(event: any) {

@@ -1,5 +1,5 @@
 <template>
-  <panel-splitter layout="horizontal" mode="resize" startValue="33" minValue="15" maxValue="85" hasparent>
+  <panel-splitter layout="horizontal" mode="active" startValue="33" minValue="15" maxValue="85" hasparent>
       <composant3 slot="prev-panel" />
       <composant4 slot="next-panel" />
   </panel-splitter>
