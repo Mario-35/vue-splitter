@@ -13,7 +13,7 @@
 This example indicate a splitter in verticale disposition start at 60% with a max of 25% and min at 75%.
 inject contents in the two parts with slots : prev-panel and next-panel.
 
-#props
+# props
 
     hasparent : boolean if this splitter is inside another splitter, is use to prevent resize conflict.
     layout : horizontal or vertical.

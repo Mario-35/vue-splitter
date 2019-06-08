@@ -1,20 +1,21 @@
 
-  <div class="root"  @[myEventLeave]="resizerOnUp">
+<div class="root">
 
-    <div v-show="isResizing" :class="`resizer-layout-${layout}`" :style="resizerStyles" @[myEventUp]="resizerOnUp"></div>
-  
-      <!-- <div ref="split" :class="`panel-splitter layout-${layout}`" @mousemove="rootMouseMove"> -->
-      <div ref="split" :class="`panel-splitter layout-${layout}`" @[myEventMove]="rootMouseMove" @[myEventUp]="resizerOnUp">
-        <div class="prev-panel" ref="prevPanel">
-          <slot name="prev-panel"></slot>
-        </div>
-  
-        <div :class="[`panel-resizer-layout-${this.layout} ${myMode}`]" @mousedown="onDown">
-          <a :class="[`panel-resizer-layout-${layout}-${myMode}`]" @click="actionClick($event)"></a>
-        </div>
-  
-        <div class="next-panel" ref="nextPanel">
-          <slot name="next-panel"></slot>
-        </div>
-      </div>
+  <div v-show="isResizing" class="glass" :style="glassStyles" @mousemove="rootMouseMove" @mouseup="resizerOnUp">
+    <div :class="`resizer-layout-${layout}`" :style="resizerStyles"></div>
+  </div>
+
+  <div :class="`panel-splitter layout-${layout}`" >
+    <div class="prev-panel" ref="prevPanel">
+      <slot name="prev-panel"></slot>
     </div>
+
+    <div :class="[`panel-resizer-layout-${layout} ${myMode}`]" @mousedown="onDown">
+      <a :class="[`action-layout-${layout}-${myMode}`]"></a>
+    </div>
+
+    <div class="next-panel" ref="nextPanel">
+      <slot name="next-panel"></slot>
+    </div>
+  </div>
+</div>
