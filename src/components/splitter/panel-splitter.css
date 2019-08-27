@@ -5,18 +5,19 @@
   --splitter-background: rgb(202, 204, 204);
   --splitter-hover: rgb(9, 189, 189);
   --splitter-limit: rgb(247, 112, 112);
+  --test: rgb(193, 112, 247);
   --splitter-line-hover: black;
-
+  --splitter-index: 10;
   width: 100%;
   height: 100%;
 }
 
 
 .panel-splitter { /* Flex Container */
-	display: -webkit-box;
-	display: -ms-flexbox;
-	display: flex;
-	width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  width: 100%;
   height: 100%;
   min-height: 0;
 }
@@ -26,11 +27,10 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  z-index: 10;
+  z-index: var(--splitter-index);
 }
 
 
-/* <div style="position: relative; z-index: 10;"> <div style="	background-color: #f00; position:absolute; z-index:-1; top:0; left:0; right:0; bottom:0; opacity:0.2;"></div> …… …… </div> */
 /*****************************************************/
 /*                   layout  General                */
 /***************************************************/
@@ -56,10 +56,7 @@
 /****************************************************                 layout horizontal               ****************************************************/
 
 .panel-splitter .layout-horizontal {
-  -webkit-box-orient: vertical;
-	-webkit-box-direction: normal;
-	-ms-flex-direction: column;
-	flex-direction: column;
+  flex-direction: column;
 }
 
 /*****************************************************/
@@ -73,60 +70,22 @@
   border-bottom: 1px solid  var(--splitter-border);
 }
 
+
 .resizer-layout-horizontal {
-  /* position: absolute; */
-  z-index: 10;
+  position:absolute;
   width: 100%;
   height: var(--splitter-width);
   border-top: 1px solid var(--splitter-line-hover);
   border-bottom: 1px solid  var(--splitter-line-hover);
 }
 
-.panel-resizer-layout-horizontal:before {
-  z-index: 12;
-  position: absolute;
-  display: block;
-  content: "";
-  height: 100%;
-  width: calc(var(--splitter-action) * 4);
-  left: 50%;
-  margin-left: calc(var(--splitter-action) * -2);
-  background-color: var(--splitter-border);
-  border-left: 1px solid var(--splitter-line-hover);
-  border-right: 1px solid var(--splitter-line-hover);
-}
 
 .panel-resizer-layout-horizontal > a {
-  z-index: 13;
+  z-index: var(--splitter-index) + 2;
   position: absolute;
-  content: "";
+  top: -3px;
   cursor: pointer;
-  left: 50%;
-}
-
-.action-layout-horizontal-resize {
-  z-index: 14;
-  margin-left: calc(var(--splitter-action) * -0.5);
-  height: var(--splitter-action);
-  width: var(--splitter-action);
-  border-radius: 50%;
-  background: black;
-}
-
-.action-layout-horizontal-minimize {
-  z-index: 14;
-  border-left: var(--splitter-action) solid transparent;
-  border-right: var(--splitter-action) solid transparent;
-  border-bottom: var(--splitter-action) solid black;
-  margin-left: calc(var(--splitter-action) * -1);
-}
-
-.action-layout-horizontal-active {
-  z-index: 14;
-  border-left: var(--splitter-action) solid transparent;
-  border-right: var(--splitter-action) solid transparent;
-  border-top: var(--splitter-action) solid black;
-  margin-left: calc(var(--splitter-action) * -1);
+  left: calc(50% - (var(--splitter-action) / 2));
 }
 
 .resizer-layout-horizontal:hover,
@@ -163,6 +122,7 @@
 }
 
 .resizer-layout-vertical {
+  position: static ;
   /* position: absolute; */
   height: 100%;
   width: var(--splitter-width);
@@ -170,51 +130,13 @@
   border-right: 1px solid  var(--splitter-line-hover);
 }
 
-.panel-resizer-layout-vertical:before {
-  z-index: 12;
-  position: absolute;
-  display: block;
-  content: "";
-  width: 100%;
-  height: calc(var(--splitter-action) * 4);
-  top: 50%;
-  margin-top: calc(var(--splitter-action) * -2);
-  background-color: var(--splitter-border);
-  border-top: 1px solid var(--splitter-line-hover);
-  border-bottom: 1px solid var(--splitter-line-hover);
-}
-
 .panel-resizer-layout-vertical > a {
-  z-index: 13;
+  z-index: var(--splitter-index) + 2;
   position: absolute;
+  left: -1px;
   content: "";
   cursor: pointer;
   top: 50%;
-}
-
-.action-layout-vertical-resize {
-  z-index: 14;
-  margin-top: calc(var(--splitter-action) * -0.5);
-  height: var(--splitter-action);
-  width: var(--splitter-action);
-  border-radius: 50%;
-  background: black;
-}
-
-.action-layout-vertical-minimize {
-  z-index: 14;
-  border-top: var(--splitter-action) solid transparent;
-  border-bottom: var(--splitter-action) solid transparent;
-  border-right: var(--splitter-action) solid black;
-  margin-top: calc(var(--splitter-action) * -1);
-}
-
-.action-layout-vertical-active {
-  z-index: 14;
-  border-top: var(--splitter-action) solid transparent;
-  border-bottom: var(--splitter-action) solid transparent;
-  border-left: var(--splitter-action) solid black;
-  margin-top: calc(var(--splitter-action) * -1);
 }
 
 .resizer-layout-vertical:hover,
@@ -229,4 +151,3 @@
 .panel-resizer-layout-vertical:hover {
   cursor: ew-resize;
 }
-

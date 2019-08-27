@@ -1,6 +1,6 @@
 
 <template>
-  <panel-splitter layout="vertical" startValue="66" minValue="25" maxValue="75" mode="minimize">
+  <panel-splitter layout="vertical" startValue="66" minValue="25" maxValue="75" mode="active">
       <composant1 slot="prev-panel" />
       <composant2 slot="next-panel" />
   </panel-splitter>

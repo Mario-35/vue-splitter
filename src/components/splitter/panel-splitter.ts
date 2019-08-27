@@ -1,31 +1,39 @@
 import Vue from "vue";
 import { Prop } from "vue/types/options";
 
+
 interface IState {
   isResizing: boolean;
-  horizontal: boolean;
-  localPrevPanel: HTMLElement | null;
-  localNextPanel: HTMLElement | null;
-  localHideResizer: HTMLElement | null;
-  localResizer: HTMLElement | null;
   maxWidthValue: number;
   minWidthValue: number;
-  myMode: string;
+  actualMode: string;
   savePercent: number;
   actualPercent: number;
   resizePosition: number;
+  resizeThin: number;
+  clickCount: number;
+  resizeOffset: number;
 }
 
 export default Vue.extend({
   computed: {
-    myEventUp(): string {
-      return this.isResizing ? "mouseup" : "";
+    horizontal(): boolean {
+      return (this.layout === "horizontal");
     },
-    myEventMove(): string {
-      return this.isResizing ? "mousemove" : "";
-    },
-    myEventLeave(): string {
-      return this.isResizing ? "mouseleave" : "";
+    actionClass(): string {
+      let icone: string = "";
+      switch (this.actualMode) {
+        case "minimize":
+          icone = this.horizontal ? "caret-up" : "caret-right";
+          break;
+        case "active":
+          icone = this.horizontal ? "caret-down" : "caret-left";
+          break;
+        case "resize":
+          icone = this.horizontal ? "arrows-h" : "arrows-v";
+          break;
+      }
+      return `fa fa-${icone} fa-lg action-layout-${this.layout}-${this.actualMode}`;
     },
     glassStyles(): object {
       return {
@@ -33,7 +41,8 @@ export default Vue.extend({
       };
     },
     resizerStyles(): object {
-      const limit: boolean = ((this.actualPercent < this.minWidthValue) || (this.actualPercent > this.maxWidthValue));
+      // tslint:disable-next-line: max-line-length
+      const limit: boolean = ((this.actualPercent - this.resizeThin < this.minWidthValue) || (this.actualPercent - this.resizeThin > this.maxWidthValue));
       return {
         // tslint:disable-next-line: max-line-length
         "background-color": limit ? "var(--splitter-limit)" : "var(--splitter-hover)",
@@ -44,65 +53,37 @@ export default Vue.extend({
   data(): IState {
     return {
       actualPercent: 0,
-      horizontal: false,
+      clickCount: 0,
+      resizeThin: 0,
       isResizing: false,
-      localHideResizer: null,
-      localNextPanel: null,
-      localPrevPanel: null,
-      localResizer: null,
       maxWidthValue: 0,
       minWidthValue: 0,
-      myMode: "",
+      actualMode: "",
       resizePosition: 0,
       savePercent: 0,
+      resizeOffset: 0,
     };
   },
   methods: {
-    getOffset(): number {
-      if (this.localResizer !== null) {
-        const rect: any = (this.localResizer as HTMLElement).getBoundingClientRect();
-        return this.horizontal ? rect.left : rect.top;
-      }
-      return 0;
-    },
-    isGoodClass(event: MouseEvent, compare: string): boolean {
-      // tslint:disable-next-line: max-line-length
-      if ((event.target instanceof HTMLElement) && event.target.className && event.target.className === compare) {
-        return true;
-      }
-      return false;
-    },
-    isGoodSetTarget(element: Element, nameClass: string): boolean {
-      if ((element instanceof HTMLElement) && element.className && element.className.includes(nameClass)) {
-        return true;
-      }
-      return false;
-    },
-    setTargets(): boolean {
-      const val1: number = 0;
-      const val2: number = 1;
-      if (this.isGoodSetTarget(this.$el.children[val1].children[0], "resizer")) {
-        this.localHideResizer = this.$el.children[val1].children[0] as HTMLElement;
-        if (this.isGoodSetTarget(this.$el.children[val2], "panel-splitter")) {
-          if (this.isGoodSetTarget(this.$el.children[val2].children[0], "prev-panel")) {
-            if (this.isGoodSetTarget(this.$el.children[val2].children[1], "panel-resizer")) {
-              if (this.isGoodSetTarget(this.$el.children[val2].children[2], "next-panel")) {
-                this.localPrevPanel = this.$el.children[val2].children[0] as HTMLElement;
-                this.localResizer = this.$el.children[val2].children[1] as HTMLElement;
-                this.localNextPanel = this.$el.children[val2].children[2] as HTMLElement;
-                this.ChangeSize(Number(this.startValue));
-                return true;
-              }
-            }
-          }
+    setResizeOffset() {
+      if (this.$refs.panelResizer !== null) {
+        let left: number = 0;
+        let top: number = 0;
+        let element: HTMLElement = this.$refs.splitterRoot as HTMLElement;
+        while (element) {
+          left += (element.offsetLeft - element.scrollLeft);
+          top += (element.offsetTop - element.scrollTop);
+          element = element.offsetParent as HTMLElement;
         }
+        this.resizeOffset = this.horizontal ? top : left;
+      } else {
+        this.resizeOffset = 0;
       }
-      return false;
     },
-    ChangeSize(percent: number) {
-      switch (this.myMode) {
+    changeSize(percent: number) {
+      switch (this.actualMode) {
         case "minimize":
-          percent = 99;
+          percent = this.horizontal ? 100 : 0;
           break;
         case "active":
         case "resize":
@@ -110,47 +91,60 @@ export default Vue.extend({
           if (percent > this.maxWidthValue) { percent = this.maxWidthValue; }
           break;
         case "deactivate":
-          percent = 100;
+          percent = this.horizontal ? 100 : 0;
           break;
       }
-      // tslint:disable-next-line: max-line-length
-      if (this.localPrevPanel != null && this.localNextPanel != null && this.localHideResizer != null && this.localResizer != null) {
+
+      if ((this.$refs.prevPanel as HTMLElement) != null
+          && (this.$refs.nextPanel as HTMLElement) != null
+          && (this.$refs.hideResizer as HTMLElement) != null
+          && (this.$refs.panelResizer as HTMLElement) != null) {
         if (this.horizontal) {
-          this.localPrevPanel.style.height = `${percent}%`;
-          this.localNextPanel.style.height = `${100 - percent}%`;
-          this.localHideResizer.style.top = this.localResizer.style.top;
+          (this.$refs.prevPanel as HTMLElement).style.height = `${percent}%`;
+          (this.$refs.nextPanel as HTMLElement).style.height = `${100 - percent}%`;
+          (this.$refs.hideResizer as HTMLElement).style.top = (this.$refs.panelResizer as HTMLElement).style.top;
         } else {
-          this.localPrevPanel.style.width = `${percent}%`;
-          this.localNextPanel.style.width = `${100 - percent}%`;
-          this.localHideResizer.style.left = this.localResizer.style.left;
+          (this.$refs.prevPanel as HTMLElement).style.width = `${percent}%`;
+          (this.$refs.nextPanel as HTMLElement).style.width = `${100 - percent}%`;
+          (this.$refs.hideResizer as HTMLElement).style.left = (this.$refs.panelResizer as HTMLElement).style.left;
         }
         this.actualPercent = percent;
-        this.resizePosition = this.getOffset();
+        this.setResizeOffset();
       }
     },
-    onDown(event: MouseEvent) {
+    setResizePosition(event: MouseEvent) {
+      const element: HTMLElement = this.$refs.splitterRoot as HTMLElement;
+      const value: number = this.horizontal
+        ? (event.pageY - this.resizeOffset)
+        : (event.pageX - this.resizeOffset);
+      this.actualPercent = Math.floor((100 * value) / (this.horizontal ? element.offsetHeight : element.offsetWidth));
+      this.resizePosition = value;
+    },
+    onMouseDown(event: MouseEvent) {
       event.preventDefault();
       if (this.isResizing) {
-        this.resizerOnUp();
+        this.onMouseUp();
       } else {
-        this.resizePosition = this.horizontal ? event.pageY : event.pageX;
-        // tslint:disable-next-line: max-line-length
-        if ((event.target instanceof HTMLElement) && event.target.className && event.target.className.includes("resizer-layout")) {
-          this.isResizing = (event.buttons === 1 && this.myMode !== "minimize");
-          // tslint:disable-next-line: max-line-length
-        } else if ((event.target instanceof HTMLElement) && event.target.className && event.target.className.includes("action-layout")) {
+        this.setResizePosition(event);
+        if ((event.target instanceof HTMLElement)
+              && event.target.className
+              && event.target.className.includes("resizer-layout")) {
+          this.isResizing = (event.buttons === 1 && this.actualMode !== "minimize");
+        } else if ((event.target instanceof HTMLElement)
+                    && event.target.className
+                    && event.target.className.includes("action-resize")) {
           this.isResizing = false;
-          if (this.myMode === "resize") {
-            this.ChangeSize(Number(this.startValue));
+          if (this.actualMode === "resize") {
+            this.changeSize(Number(this.startValue));
           } else {
-            if (this.localPrevPanel != null && this.localNextPanel != null) {
-              if (this.myMode === "minimize") {
-                this.myMode = "active";
-                this.ChangeSize(this.savePercent);
+            if ((this.$refs.prevPanel as HTMLElement) != null && (this.$refs.nextPanel as HTMLElement) != null) {
+              if (this.actualMode === "minimize") {
+                this.actualMode = "active";
+                this.changeSize(this.savePercent);
               } else {
                 this.savePercent = this.actualPercent;
-                this.myMode = "minimize";
-                this.ChangeSize(this.savePercent);
+                this.actualMode = "minimize";
+                this.changeSize(this.savePercent);
               }
             }
           }
@@ -159,31 +153,35 @@ export default Vue.extend({
         }
       }
     },
-    resizerOnUp() {
-      this.ChangeSize(this.actualPercent);
+    onClick() {
+      this.changeSize(Number(this.minValue));
+    },
+    onMouseUp() {
+      this.changeSize(this.actualPercent);
       this.isResizing = false;
     },
-    rootMouseMove(event: MouseEvent) {
+    onMouseMove(event: MouseEvent) {
       event.preventDefault();
-      const target: HTMLElement = event.currentTarget as HTMLElement;
       if (event.buttons === 1 && this.isResizing) {
         if (event.pageY > 0 && event.pageX > 0) {
-          // tslint:disable-next-line: max-line-length
-          this.actualPercent = this.horizontal ? Math.floor((100 * event.pageY) / target.offsetHeight) : Math.floor((100 * event.pageX) / target.offsetWidth);
-          this.resizePosition = this.horizontal ? event.pageY : event.pageX;
+          this.setResizePosition(event);
         }
       } else if (this.isResizing) {
-        this.resizerOnUp();
+        this.onMouseUp();
       }
     },
   },
   mounted() {
-    this.myMode = this.mode;
+    this.actualMode = this.mode;
     this.isResizing = false;
-    this.horizontal = (this.layout === "horizontal");
     this.minWidthValue = (this.minValue === "") ? Number(this.startValue) : Number(this.minValue);
     this.maxWidthValue = (this.maxValue === "") ? 100 : Number(this.maxValue);
-    this.setTargets();
+    this.changeSize(Number(this.startValue));
+    if ((this.$refs.panelResizer as HTMLElement)) {
+      this.resizeThin = (this.horizontal)
+        ? Number((this.$refs.panelResizer as HTMLElement).style.height)
+        : Number((this.$refs.panelResizer as HTMLElement).style.width);
+    }
   },
   name: "panel-splitter",
   props: {
@@ -211,6 +209,17 @@ export default Vue.extend({
       default: "50",
       required: false,
       type: String,
+    },
+  },
+  watch: {
+    mode(newVal: string) {
+      this.actualMode = newVal;
+      if (this.actualMode === "minimize" || this.actualMode === "deactivate") {
+        this.savePercent = this.actualPercent;
+      } else {
+        this.actualPercent = this.savePercent === 0 ? Number(this.startValue) : this.savePercent;
+      }
+      this.changeSize(this.actualPercent);
     },
   },
 });

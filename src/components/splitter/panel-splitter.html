@@ -1,20 +1,40 @@
+<div ref="splitterRoot" class="root">
 
-<div class="root">
-
-  <div v-show="isResizing" class="glass" :style="glassStyles" @mousemove="rootMouseMove" @mouseup="resizerOnUp">
-    <div :class="`resizer-layout-${layout}`" :style="resizerStyles"></div>
+  <div
+      v-show="isResizing"
+      class="glass"
+      :style="glassStyles"
+      @mousemove.prevent="onMouseMove"
+      @mouseup="onMouseUp"
+  >
+    <div
+      :class="`resizer-layout-${layout}`"
+      :style="resizerStyles"
+      ref="hideResizer"
+    ></div>
   </div>
 
-  <div :class="`panel-splitter layout-${layout}`" >
-    <div class="prev-panel" ref="prevPanel">
+  <div :class="`panel-splitter layout-${layout}`">
+    <div
+      class="prev-panel"
+      ref="prevPanel"
+    >
       <slot name="prev-panel"></slot>
     </div>
 
-    <div :class="[`panel-resizer-layout-${layout} ${myMode}`]" @mousedown="onDown">
-      <a :class="[`action-layout-${layout}-${myMode}`]"></a>
+    <div
+      :class="[`panel-resizer-layout-${layout} ${actualMode}`]"
+      @mousedown.prevent="onMouseDown"
+      ref="panelResizer"
+    >
+      <!-- <i class="fa fa-caret-up fa-lg"></i> -->
+      <a :class="actionClass"> </a>
     </div>
 
-    <div class="next-panel" ref="nextPanel">
+    <div
+      class="next-panel"
+      ref="nextPanel"
+    >
       <slot name="next-panel"></slot>
     </div>
   </div>
